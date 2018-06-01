@@ -44,11 +44,185 @@
   },
   "description": "Kafka resource usage and consumer lag overview",
   "editable": true,
-  "gnetId": 721,
+  "gnetId": 5468,
   "graphTooltip": 0,
   "id": null,
   "links": [],
   "panels": [
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "fill": 1,
+      "gridPos": {
+        "h": 6,
+        "w": 13,
+        "x": 0,
+        "y": 0
+      },
+      "id": 22,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "sort": "total",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "connected",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "repeat": null,
+      "seriesOverrides": [
+        {}
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "sum by(topic) (kafka_log_size)",
+          "format": "time_series",
+          "hide": false,
+          "intervalFactor": 1,
+          "legendFormat": "{{topic}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Kafka log size by topic",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": false,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "decbytes",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ]
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "fill": 1,
+      "gridPos": {
+        "h": 6,
+        "w": 11,
+        "x": 13,
+        "y": 0
+      },
+      "id": 20,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": true,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "connected",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "sum by(pod) (kafka_log_size)",
+          "format": "time_series",
+          "hide": false,
+          "intervalFactor": 1,
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Kafka log size by broker (disk space utilization)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "decbytes",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ]
+    },
     {
       "aliasColors": {
         "localhost:7071": "#629E51"
@@ -65,7 +239,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 0
+        "y": 6
       },
       "id": 1,
       "isNew": true,
@@ -154,7 +328,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 0
+        "y": 6
       },
       "id": 2,
       "isNew": true,
@@ -251,7 +425,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 0
+        "y": 6
       },
       "id": 3,
       "isNew": true,
@@ -338,7 +512,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 6
+        "y": 12
       },
       "id": 4,
       "isNew": true,
@@ -431,7 +605,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 6
+        "y": 12
       },
       "id": 5,
       "isNew": true,
@@ -521,7 +695,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 6
+        "y": 12
       },
       "id": 6,
       "isNew": true,
@@ -610,19 +784,20 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 12
+        "y": 18
       },
-      "id": 10,
+      "id": 18,
       "legend": {
         "alignAsTable": true,
         "avg": false,
-        "current": false,
+        "current": true,
+        "hideZero": true,
         "max": false,
         "min": false,
         "rightSide": true,
         "show": true,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 1,
@@ -638,26 +813,17 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum by(topic)(rate(kafka_log_logendoffset{ topic = \"grips-na-raw\" }[10m]))",
+          "expr": "kafka_controller_kafkacontroller_offlinepartitionscount",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "speed {{topic}}",
+          "legendFormat": "{{pod}}",
           "refId": "A"
-        },
-        {
-          "expr": "sum by(topic)(kafka_log_logendoffset{ topic = \"grips-na-raw\" })",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "intervalFactor": 1,
-          "legendFormat": "count {{topic}}",
-          "refId": "B"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "grips-na-raw offset (How fast offset increases)",
+      "title": "Offline partitions",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -701,7 +867,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 12
+        "y": 18
       },
       "id": 8,
       "legend": {
@@ -784,7 +950,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 12
+        "y": 18
       },
       "id": 16,
       "legend": {
@@ -866,9 +1032,9 @@
       "fill": 1,
       "gridPos": {
         "h": 5,
-        "w": 11,
+        "w": 12,
         "x": 0,
-        "y": 18
+        "y": 24
       },
       "id": 14,
       "legend": {
@@ -950,9 +1116,9 @@
       "fill": 1,
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 11,
-        "y": 18
+        "w": 12,
+        "x": 12,
+        "y": 24
       },
       "id": 12,
       "legend": {
@@ -1022,100 +1188,19 @@
           "show": true
         }
       ]
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "${DS_PROMETHEUS}",
-      "fill": 1,
-      "gridPos": {
-        "h": 5,
-        "w": 7,
-        "x": 17,
-        "y": 18
-      },
-      "id": 18,
-      "legend": {
-        "alignAsTable": true,
-        "avg": false,
-        "current": true,
-        "hideZero": true,
-        "max": false,
-        "min": false,
-        "rightSide": true,
-        "show": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "kafka_controller_kafkacontroller_offlinepartitionscount",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "{{pod}}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Offline partitions",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ]
     }
   ],
-  "refresh": false,
+  "refresh": "1m",
   "schemaVersion": 16,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "Kafka"
+  ],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {
@@ -1144,7 +1229,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "Kafka Overview with Burrow consumer lag stats",
+  "title": "Kubernetes Kafka Overview, Burrow consumer lag stats, Kafka disk usage",
   "uid": "i8HLvrkiz",
-  "version": 4
+  "version": 3
 }
