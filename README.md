@@ -4,6 +4,7 @@ Monitoring kafka brokers inside kubernetes cluster with Burrow and Prometheus Op
 How to setup Prometheus Operator to scrape and store metrics exposed by burrow and jmx
 -----
 
+This how-to is
 * Download jmx-exporter: https://github.com/prometheus/jmx_exporter
 * Create jmx-exporter.yml configfile, here are couple links:
 https://github.com/prometheus/jmx_exporter/blob/master/example_configs/kafka-0-8-2.yml
@@ -20,6 +21,7 @@ COPY prometheus-expoerter/jmx-exporter.yml /usr/share/java/kafka/jmx-exporter.ym
 
 Kafka kubernetes manifests
 -----
+
 Enable jmx-exporter java agent, add this options into *env* part of Kafka statefulset manifest:
 
 ```yaml
@@ -32,12 +34,58 @@ Burrow
 -----
 
 Burrow is recomended tool for monitoring consumer lag -- one of the most important metric for Kafka cluster.
-It has comprehensive documentation, please find it here: https://github.com/linkedin/Burrow/wiki
+It has comprehensive documentation, please find it here: https://github.com/linkedin/Burrow/wiki \
 There is only one problem with Burrow, it doesn't expose metrics in Prometheus format, and this is the reason why we should use burrow-exporter docker container for converting metrics.
 
-Create Burrow config.toml:
+Create burrow docker image:
+We will mount config inside working container using Kubernetes configmap feature.
 
-```toml
+Create start.sh script and Dockerfile:
+
+```bash
+#!/bin/sh
+KAFKA_VERSION=${KAFKA_VERSION:-0.10.1.0}
+echo "start"
+cat $CONFIG_FILE
+exec $GOPATH/bin/Burrow -config-dir /etc/burrow/config/
+
+```
+
+```Dockerfile
+FROM golang:alpine
+RUN apk add --update bash curl git && apk add ca-certificates wget && update-ca-certificates && rm -rf /var/cache/apk/*
+RUN go get github.com/linkedin/Burrow \
+    github.com/golang/dep/cmd/dep
+WORKDIR $GOPATH/src/github.com/linkedin/Burrow
+RUN dep ensure && go install && mkdir -p /etc/burrow/
+ADD ./ /etc/burrow/
+WORKDIR /etc/burrow/
+CMD ["/etc/burrow/start.sh"]
+
+```
+
+
+Prometheus Operator
+-----
+
+Prometheus Operator uses k8s services and service monitors CRD for generating Prometheus config.
+
+Apply this manifest inside namespace where Prometheus Operator works:
+Burrow Service, ConfigMap and Deployment:
+```yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: burrow
+  labels:
+    k8s-app: burrow
+spec:
+  selector:
+    k8s-app: burrow
+  ports:
+  - name: metrics
+    port: 8080
+---
 kind: ConfigMap
 metadata:
   name: burrow-config
@@ -76,14 +124,130 @@ data:
     
     [httpserver.default]
     address=":8000"
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: burrow
+  labels:
+    k8s-app: burrow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: burrow
+  template:
+    metadata:
+      labels:
+        k8s-app: burrow
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+      - name: burrow
+        image: aksregistryprod.azurecr.io/burrow:v8
+        ports:
+        - name: api
+          containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /burrow/admin
+            port: 8000
+        livenessProbe:
+          httpGet:
+            path: /burrow/admin
+            port: 8000
+        volumeMounts:
+        - name: config
+          mountPath: /etc/burrow/config
+      - name: burrow-exporter
+        image: aksregistryprod.azurecr.io/burrow-exporter
+        ports:
+        - name: metrics
+          containerPort: 8080
+        env:
+        - name: BURROW_ADDR
+          value: http://localhost:8000
+        - name: METRICS_ADDR
+          value: 0.0.0.0:8080
+        - name: INTERVAL
+          value: "15"
+      volumes:
+      - name: config
+        configMap:
+          name: burrow-config
 
 ```
 
+Modify Kafka service manifest -- add port on which jmx metrics exposed and add label for Prometheus Operator
+Kafka Service:
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-hs
+  labels:
+    k8s-app: kafka-metrics
+spec:
+  clusterIP: None
+  selector:
+    app: kafka
+  ports:
+  - port: 9092
+    name: internal
+  - port: 9093
+    name: client
+  - port: 5555
+    name: metrics
+```
+
+ServiceMonitor
+----
+Apply these manifests inside the namespace where your Prometheus Operator works, e.g. monitoring
+
+Kafka ServiceMonitor:
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kafka-metrics
+  labels:
+    k8s-app: kafka-metrics
+spec:
+  selector:
+    matchLabels:
+      k8s-app: kafka-metrics
+  namespaceSelector:
+    matchNames:
+    - kafka-namespace
+  endpoints:
+  - port: metrics
+    interval: 10s
+```
+
+Burrow ServiceMonitor:
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: burrow
+  labels:
+    k8s-app: burrow
+spec:
+  selector:
+    matchLabels:
+      k8s-app: burrow
+  namespaceSelector:
+    matchNames:
+    - monitoring
+  endpoints:
+  - port: metrics
+    interval: 10s
+
+```
+
+
 ![alt text](https://raw.githubusercontent.com/ignatev/burrow-kafka-dashboard/master/image.png)
 ![alt text](https://github.com/ignatev/burrow-kafka-dashboard/blob/master/Screenshot%20from%202018-04-07%2022-37-14.png?raw=true)
-
-Kafka as stateful set inside kubernetes cluster
-Put jmx_exporter.jar inside kafka container
-Add jmx_exporter KAFKA_OPTS
-Run burrow and burrow-exporter
-Setup Prometheus targets
