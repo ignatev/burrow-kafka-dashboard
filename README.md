@@ -6,7 +6,6 @@ Monitoring Kafka with Burrow and Prometheus Operator
 How to setup Prometheus Operator to scrape and store metrics exposed by burrow and jmx
 -----
 
-This how-to is
 * Download jmx-exporter: https://github.com/prometheus/jmx_exporter
 * Create jmx-exporter.yml configfile, here are couple links:
 https://github.com/prometheus/jmx_exporter/blob/master/example_configs/kafka-0-8-2.yml
