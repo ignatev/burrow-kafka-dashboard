@@ -1,5 +1,7 @@
-Monitoring kafka brokers inside kubernetes cluster with Burrow and Prometheus Operator
+Monitoring Kafka with Burrow and Prometheus Operator
 =====
+
+![alt text](https://raw.githubusercontent.com/ignatev/burrow-kafka-dashboard/master/image.png)
 
 How to setup Prometheus Operator to scrape and store metrics exposed by burrow and jmx
 -----
@@ -247,7 +249,3 @@ spec:
     interval: 10s
 
 ```
-
-
-![alt text](https://raw.githubusercontent.com/ignatev/burrow-kafka-dashboard/master/image.png)
-![alt text](https://github.com/ignatev/burrow-kafka-dashboard/blob/master/Screenshot%20from%202018-04-07%2022-37-14.png?raw=true)
