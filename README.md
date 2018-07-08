@@ -147,7 +147,7 @@ spec:
     spec:
       containers:
       - name: burrow
-        image: aksregistryprod.azurecr.io/burrow:v8
+        image: burrow
         ports:
         - name: api
           containerPort: 8000
@@ -163,7 +163,7 @@ spec:
         - name: config
           mountPath: /etc/burrow/config
       - name: burrow-exporter
-        image: aksregistryprod.azurecr.io/burrow-exporter
+        image: burrow-exporter
         ports:
         - name: metrics
           containerPort: 8080
